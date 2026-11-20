@@ -1,23 +1,50 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
-<link rel="stylesheet" href="./style.css">
+  <meta charset="UTF-8">
+  <title>Sundown Press</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
-  </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
-</main>
-<script type="module" src="./src/main.js"></script>
+  <header>
+    <h1>Sundown Press</h1>
+  </header>
+  <main>
+    <section class="controls">
+      <div class="layout-picker">
+        <!-- Layout buttons -->
+      </div>
+      <input type="file" id="file-input" multiple>
+      <div id="status"></div>
+      <div class="grade-chips">
+        <!-- Grade chips -->
+      </div>
+      <input type="text" id="title" placeholder="Title">
+      <input type="text" id="caption" placeholder="Caption">
+      <div class="fill-mode">
+        <label><input type="radio" name="fill" value="all"> One photo, all panels</label>
+        <label><input type="radio" name="fill" value="panel"> Per-panel photos</label>
+      </div>
+      <div class="size-switcher">
+        <button data-size="1080x1080">1080×1080</button>
+        <button data-size="1080x1350">1080×1350</button>
+        <button data-size="1920x1080">1920×1080</button>
+      </div>
+      <button id="export">Export PNG</button>
+      <div class="effects">
+        <label><input type="checkbox" id="grain" checked> Grain</label>
+        <label><input type="checkbox" id="vignette" checked> Vignette</label>
+        <label><input type="checkbox" id="borders" checked> Borders</label>
+        <label><input type="checkbox" id="halftone"> Halftone</label>
+      </div>
+    </section>
+    <section class="preview">
+      <canvas id="cover"></canvas>
+    </section>
+    <section class="tray">
+      <!-- Filmstrip -->
+    </section>
+  </main>
+  <script type="module" src="src/main.js"></script>
 </body>
 </html>

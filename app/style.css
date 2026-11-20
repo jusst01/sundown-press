@@ -1,12 +1,73 @@
-html, body { margin: 0; height: 100%; background: #f2f0f4; color: #1d1b22; font: 15px/1.4 system-ui, sans-serif; }
-.app { display: flex; gap: 32px; align-items: center; justify-content: center; height: 100%; padding: 24px; box-sizing: border-box; }
-.controls { display: flex; flex-direction: column; gap: 14px; width: 280px; }
-.controls h1 { margin: 0; font-size: 28px; }
-.controls p { margin: 0; color: #5c5866; }
-label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
-input[type=text] { font: inherit; padding: 8px; border: 1px solid #c9c4d1; border-radius: 6px; }
-button { font: inherit; font-weight: 700; padding: 10px; border: 0; border-radius: 6px; background: #1d1b22; color: #fff; cursor: pointer; }
-canvas { width: min(70vh, 60vw); height: min(70vh, 60vw); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); }
-body.shot-cover .controls { display: none; }
-body.shot-cover .app { padding: 0; }
-body.shot-cover canvas { width: 100vw; height: 100vh; box-shadow: none; }
+@font-face {
+  font-family: 'Anton';
+  src: url('./fonts/Anton-Regular.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+
+/* Dark studio UI, cream/orange accents */
+body {
+  background: #1a1a1a;
+  color: #f0e6d2; /* Cream */
+  font-family: sans-serif;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+header {
+  padding: 1rem;
+  background: #2a2a2a;
+}
+main {
+  display: flex;
+  flex: 1;
+}
+.controls {
+  width: 300px;
+  padding: 1rem;
+  border-right: 1px solid #333;
+}
+.preview {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #000;
+}
+#canvas {
+  background: #fff;
+  border: 1px solid #f0e6d2;
+}
+.tray {
+  width: 200px;
+  border-left: 1px solid #333;
+}
+button {
+  background: #ff8c00; /* Orange */
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+/* Responsive to shot sizes */
+.shot-cover html,
+.shot-cover body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.shot-cover header, .shot-cover .controls, .shot-cover .tray { display: none; }
+.shot-cover main,
+.shot-cover .preview {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+}
+.shot-cover canvas,
+.shot-cover #canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}

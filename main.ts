@@ -12,6 +12,9 @@
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+// Sundown Press — GTA-style cover art studio (gta6-cover-art-01)
+const ENTRY_NAME = 'Sundown Press';
+console.log(`Starting ${ENTRY_NAME}`);
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-app.ts';
