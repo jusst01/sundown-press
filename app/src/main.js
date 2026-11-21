@@ -1,5 +1,5 @@
 import { drawCover } from './cover.js';
-import { loadPhoto } from './photo-manager.js';
+import { loadPhoto, SAMPLE_FOCALS } from './photo-manager.js';
 import { runShot } from './shots.js';
 import { layouts } from './layout-templates.js';
 
@@ -14,6 +14,7 @@ let state = {
     fillMode: 'span',
     photoAssignments: {}, // panelID: photoObject
     panelGrades: {},
+    panelTags: {},
     title: 'SUNSET HEIST',
     caption: 'A JALLU STORY',
     effects: { grain: true, vignette: true, borders: true, halftone: false }
@@ -21,6 +22,53 @@ let state = {
 
 async function update() {
     const params = new URLSearchParams(window.location.search);
+
+    // Parse shot-scene state
+    state.fillMode = params.get('fill') || state.fillMode;
+    state.caption = params.get('caption') || state.caption;
+    state.panelTags = {};
+    if (params.has('tags')) {
+        const tagPairs = params.get('tags').split(',');
+        for (const pair of tagPairs) {
+            const [panel, text] = pair.split(':');
+            state.panelTags[panel] = decodeURIComponent(text);
+        }
+    }
+
+    if (params.has('assign')) {
+        state.photoAssignments = {};
+        const assignments = params.get('assign').split(',');
+        const focals = {};
+        if (params.has('focals')) {
+            const focalPairs = params.get('focals').split(',');
+            for (const pair of focalPairs) {
+                const [panel, coords] = pair.split(':');
+                const [fx, fy] = coords.split('x');
+                focals[panel] = { x: parseFloat(fx), y: parseFloat(fy) };
+            }
+        }
+
+        for (const pair of assignments) {
+            const [panel, sample] = pair.split(':');
+            // Fetch/load
+            const response = await fetch(`samples/${sample}.jpg`);
+            const blob = await response.blob();
+            const photo = await loadPhoto(new File([blob], `${sample}.jpg`), { focal: focals[panel] || SAMPLE_FOCALS[sample] });
+            state.photoAssignments[panel] = photo;
+        }
+    } else {
+        const photoParam = params.get('photo') || 'pier';
+        const response = await fetch(`samples/${photoParam}.jpg`);
+        const blob = await response.blob();
+        const photo = await loadPhoto(new File([blob], `${photoParam}.jpg`), { focal: SAMPLE_FOCALS[photoParam] });
+        state.photoAssignments['hero'] = photo;
+    }
+
+    if (params.get('shot') === 'sizes') {
+        renderSizesView(params);
+        return;
+    }
+
     if (params.get('shot') === 'cover') {
         const sizeParam = params.get('size');
         if (sizeParam) {
@@ -70,6 +118,53 @@ async function update() {
     await drawCover(canvas, { ...state, title: displayTitle });
 }
 
+async function renderSizesView(params) {
+    document.body.style.display = 'flex';
+    document.body.style.justifyContent = 'center';
+    document.body.style.alignItems = 'center';
+    document.body.style.height = '100vh';
+    document.body.style.margin = '0';
+    document.body.style.background = '#1a1a1a';
+
+    // Hide other stuff.
+    const header = document.querySelector('header');
+    if (header) header.style.display = 'none';
+    const aside = document.querySelector('aside');
+    if (aside) aside.style.display = 'none';
+    canvas.style.display = 'none'; // The preview canvas
+
+    const container = document.createElement('div');
+    container.style.display = 'flex';
+    container.style.gap = '24px';
+    document.body.appendChild(container);
+
+    const sizes = [{w: 1080, h: 1080, label: '1080 × 1080'}, {w: 1080, h: 1350, label: '1080 × 1350'}];
+    const displayTitle = state.title.trim() !== '' ? state.title : state.caption;
+
+    for (const size of sizes) {
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.style.alignItems = 'center';
+        container.appendChild(wrapper);
+
+        const c = document.createElement('canvas');
+        c.width = size.w;
+        c.height = size.h;
+        c.style.height = '620px';
+        c.style.width = 'auto';
+        wrapper.appendChild(c);
+
+        const label = document.createElement('div');
+        label.innerText = size.label;
+        label.style.color = '#f0e6d2';
+        label.style.marginTop = '10px';
+        wrapper.appendChild(label);
+
+        await drawCover(c, { ...state, title: displayTitle });
+    }
+}
+
 fileInput.addEventListener('change', async (e) => {
     for (const file of e.target.files) {
         const photo = await loadPhoto(file);
@@ -108,12 +203,9 @@ document.querySelectorAll('input[name="fill"]').forEach(radio => {
 
 const params = new URLSearchParams(window.location.search);
 if (params.has('shot')) {
-    runShot(params.get('shot'), params, async (url, cap) => {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const photo = await loadPhoto(new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
-        state.photoAssignments['hero'] = photo;
-        state.caption = cap;
-        update();
+    runShot(params.get('shot'), params, async (q) => {
+        // The load callback just triggers re-render,
+        // as parsing logic is now inside update().
+        await update();
     });
 }

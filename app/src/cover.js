@@ -5,6 +5,19 @@ import { layouts } from './layout-templates.js';
 import { photos } from './photo-manager.js';
 import { grades } from './grades.js';
 
+function fitRect(imgW, imgH, tx, ty, tw, th, focal) {
+    const scale = Math.max(tw / imgW, th / imgH);
+    const pw = imgW * scale;
+    const ph = imgH * scale;
+    // position so the focal point lands at the target rect's centre
+    let px = tx + tw / 2 - focal.x * pw;
+    let py = ty + th / 2 - focal.y * ph;
+    // each clamped so the image still covers the rect
+    px = Math.max(Math.min(px, tx), tx + tw - pw);
+    py = Math.max(Math.min(py, ty), ty + th - ph);
+    return { px, py, pw, ph };
+}
+
 function getPanelPath(panel, w, h) {
     const path = new Path2D();
     const x = panel.x * w;
@@ -163,12 +176,19 @@ function drawBarcode(ctx, w, h) {
     ctx.restore();
 }
 
-function drawPanelTag(ctx, panel, w, h) {
+function drawPanelTag(ctx, panel, index, w, h, data) {
     ctx.save();
     const path = getPanelPath(panel, w, h);
     ctx.clip(path);
 
-    const role = roleMap[panel.id] || `SCENE ${(panel.id || '').toUpperCase()}` || 'SCENE';
+    let role = 'SCENE';
+    if (data.panelTags && data.panelTags[panel.id]) {
+        role = data.panelTags[panel.id];
+    } else if (data.fillMode === 'span') {
+        role = `SCENE ${index + 1}`;
+    } else {
+        role = roleMap[panel.id] || `SCENE ${(panel.id || '').toUpperCase()}` || 'SCENE';
+    }
     const skewAngle = (panel.skew || -4) * Math.PI / 180;
     const px = panel.x * w + w * 0.015;
     // Never let a tag sit underneath the top furniture strip.
@@ -225,11 +245,30 @@ export async function drawCover(canvas, data) {
             spanImg = new Image();
             spanImg.src = spanPhoto.url;
             await new Promise(r => spanImg.onload = r);
+
+            // Anchor span photo focal to the CENTRE OF THE LARGEST-AREA PANEL
+            let largestPanel = currentLayout.panels[0];
+            let maxArea = 0;
+            for (const panel of currentLayout.panels) {
+                const area = panel.w * panel.h;
+                if (area > maxArea) {
+                    maxArea = area;
+                    largestPanel = panel;
+                }
+            }
+            const anchorX = largestPanel.x + largestPanel.w / 2;
+            const anchorY = largestPanel.y + largestPanel.h / 2;
+
+            const focal = spanPhoto.focal || { x: 0.5, y: 0.5 };
             const scale = Math.max(w / spanImg.width, h / spanImg.height);
             spanPw = spanImg.width * scale;
             spanPh = spanImg.height * scale;
-            spanPx = (w - spanPw) / 2;
-            spanPy = (h - spanPh) / 2;
+
+            spanPx = (anchorX * w) - (focal.x * spanPw);
+            spanPy = (anchorY * h) - (focal.y * spanPh);
+            // Clamp
+            spanPx = Math.max(Math.min(spanPx, 0), w - spanPw);
+            spanPy = Math.max(Math.min(spanPy, 0), h - spanPh);
         }
     }
 
@@ -259,11 +298,8 @@ export async function drawCover(canvas, data) {
                 const targetX = panel.x * w;
                 const targetY = panel.y * h;
 
-                const scale = Math.max(targetW / img.width, targetH / img.height);
-                const pw = img.width * scale;
-                const ph = img.height * scale;
-
-                ctx.drawImage(img, targetX + (targetW - pw) / 2, targetY + (targetH - ph) / 2, pw, ph);
+                const { px, py, pw, ph } = fitRect(img.width, img.height, targetX, targetY, targetW, targetH, photo.focal || { x: 0.5, y: 0.5 });
+                ctx.drawImage(img, px, py, pw, ph);
             } else {
                 ctx.fillStyle = '#333';
                 ctx.fillRect(panel.x * w, panel.y * h, panel.w * w, panel.h * h);
@@ -301,7 +337,7 @@ export async function drawCover(canvas, data) {
 
     // 3e. Per-panel caption tags (after the top strip so they stay readable)
     for (let i = 0; i < currentLayout.panels.length; i++) {
-        drawPanelTag(ctx, currentLayout.panels[i], w, h);
+        drawPanelTag(ctx, currentLayout.panels[i], i, w, h, data);
     }
 
     // 3d. Seal

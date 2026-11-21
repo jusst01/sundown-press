@@ -69,12 +69,19 @@ export function drawLettering(ctx, canvas, title, caption, band) {
 
     // 3. Bottom Credits Line (3b): one line of tiny letterspaced caps at the band's very bottom edge
     ctx.save();
-    const credFontSize = Math.max(h * 0.014, bandH * 0.1);
+    let credFontSize = Math.max(h * 0.014, bandH * 0.1);
     ctx.font = `700 ${credFontSize}px 'Archivo', sans-serif`;
-    ctx.textAlign = 'center';
+    const credText = 'A SUNDOWN PICTURES PRODUCTION · STARRING YOU · SHOT ON YOUR OWN CAMERA';
+    let credWidth = ctx.measureText(credText).width;
+
+    if (credWidth > bandW * 0.72) {
+        credFontSize *= Math.max(0.6, (bandW * 0.72) / credWidth);
+        ctx.font = `700 ${credFontSize}px 'Archivo', sans-serif`;
+    }
+
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
     ctx.fillStyle = '#f0e6d2';
-    const credText = 'A SUNDOWN PICTURES PRODUCTION · STARRING YOU · SHOT ON YOUR OWN CAMERA';
-    ctx.fillText(credText, bandX + bandW / 2, bandY + bandH - bandH * 0.04);
+    ctx.fillText(credText, x, bandY + bandH - bandH * 0.04);
     ctx.restore();
 }

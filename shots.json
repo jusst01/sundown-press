@@ -1,6 +1,6 @@
 [
-  { "name": "1-cover.jpg", "query": "?shot=cover&photo=pier&caption=One%20Last%20Score%20at%20Sundown&size=1920x1080", "w": 1280, "h": 720 },
-  { "name": "2-editor.jpg", "query": "?shot=editor&photo=boulevard&caption=Boulevard%20Queen", "w": 1280, "h": 720 },
-  { "name": "3-panels.jpg", "query": "?shot=cover&photo=boulevard&title=Boulevard%20Queen&caption=Queen%20of%20the%20Coastline&layout=marquee&size=1080x1080", "h": 1080, "w": 1080 },
-  { "name": "4-sizes.jpg", "query": "?shot=sizes&photo=pier&caption=Sunset%20Heist", "w": 1280, "h": 720 }
+    {"name": "1-cover.jpg", "query": "?shot=cover&fill=per-panel&assign=hero:pier,stack1:boulevard,stack2:pier,stack3:boulevard&focals=stack1:0.15x0.10,stack2:0.82x0.50,stack3:0.30x0.80&tags=hero:THE%20CAPTAIN,stack1:THE%20STRIP,stack2:THE%20HOOK,stack3:THE%20GETAWAY&caption=One%20Last%20Score%20at%20Sundown&size=1920x1080", "w": 1280, "h": 720},
+    {"name": "2-editor.jpg", "query": "?shot=editor&fill=per-panel&assign=hero:pier,stack1:boulevard,stack2:pier,stack3:boulevard&focals=stack1:0.15x0.10,stack2:0.82x0.50,stack3:0.30x0.80&tags=hero:THE%20CAPTAIN,stack1:THE%20STRIP,stack2:THE%20HOOK,stack3:THE%20GETAWAY&caption=One%20Last%20Score%20at%20Sundown", "w": 1280, "h": 720},
+    {"name": "3-panels.jpg", "query": "?shot=cover&photo=boulevard&title=Boulevard%20Queen&caption=Queen%20of%20the%20Coastline&layout=marquee&size=1080x1080", "w": 1080, "h": 1080},
+    {"name": "4-sizes.jpg", "query": "?shot=sizes&fill=per-panel&assign=hero:pier,stack1:boulevard,stack2:pier,stack3:boulevard&focals=stack1:0.15x0.10,stack2:0.82x0.50,stack3:0.30x0.80&tags=hero:THE%20CAPTAIN,stack1:THE%20STRIP,stack2:THE%20HOOK,stack3:THE%20GETAWAY&caption=One%20Last%20Score%20at%20Sundown", "w": 1280, "h": 720}
 ]

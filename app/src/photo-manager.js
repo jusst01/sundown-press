@@ -4,7 +4,9 @@ const MAX_DIM = 2048;
 
 export const photos = new Map();
 
-export async function loadPhoto(file) {
+export const SAMPLE_FOCALS = { pier: { x: 0.35, y: 0.24 }, boulevard: { x: 0.55, y: 0.18 } };
+
+export async function loadPhoto(file, opts = {}) {
     const url = URL.createObjectURL(file);
     const img = await loadImage(url);
     const canvas = document.createElement('canvas');
@@ -27,7 +29,7 @@ export async function loadPhoto(file) {
     URL.revokeObjectURL(url);
 
     const id = crypto.randomUUID();
-    const photo = { id, url: finalUrl, width: w, height: h, zoom: 1, pan: { x: 0, y: 0 } };
+    const photo = { id, url: finalUrl, width: w, height: h, zoom: 1, pan: { x: 0, y: 0 }, focal: opts.focal || { x: 0.5, y: 0.5 } };
     photos.set(id, photo);
     return photo;
 }
@@ -36,7 +38,7 @@ export async function registerBuiltIn(id, path) {
     const response = await fetch(path);
     const blob = await response.blob();
     const file = new File([blob], id, { type: 'image/jpeg' });
-    return loadPhoto(file); // This will assign a new ID. Need to handle registration better.
+    return loadPhoto(file, { focal: SAMPLE_FOCALS[id] || { x: 0.5, y: 0.5 } });
 }
 
 // Actually, I should just map name to photo object.
@@ -47,8 +49,8 @@ export async function initRegistry() {
     const boulevard = await fetch('samples/boulevard.jpg').then(r => r.blob());
 
     // For simplicity, I will implement a simpler loader here
-    registry.set('pier', await loadPhoto(new File([pier], 'pier.jpg')));
-    registry.set('boulevard', await loadPhoto(new File([boulevard], 'boulevard.jpg')));
+    registry.set('pier', await loadPhoto(new File([pier], 'pier.jpg'), { focal: SAMPLE_FOCALS.pier }));
+    registry.set('boulevard', await loadPhoto(new File([boulevard], 'boulevard.jpg'), { focal: SAMPLE_FOCALS.boulevard }));
 }
 
 function loadImage(url) {
