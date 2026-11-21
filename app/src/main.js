@@ -119,18 +119,26 @@ async function update() {
 }
 
 async function renderSizesView(params) {
+    if (window.__sizesBuilt) return;
+    window.__sizesBuilt = true;
+
     document.body.style.display = 'flex';
     document.body.style.justifyContent = 'center';
     document.body.style.alignItems = 'center';
     document.body.style.height = '100vh';
     document.body.style.margin = '0';
     document.body.style.background = '#1a1a1a';
+    document.body.style.overflow = 'hidden';
 
     // Hide other stuff.
     const header = document.querySelector('header');
     if (header) header.style.display = 'none';
     const aside = document.querySelector('aside');
     if (aside) aside.style.display = 'none';
+    const main = document.querySelector('main');
+    if (main) main.style.display = 'none';
+    const preview = document.querySelector('.preview');
+    if (preview) preview.style.display = 'none';
     canvas.style.display = 'none'; // The preview canvas
 
     const container = document.createElement('div');
